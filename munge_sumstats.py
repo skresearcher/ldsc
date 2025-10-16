@@ -8,6 +8,7 @@ import traceback
 import gzip
 import bz2
 import argparse
+import re
 from scipy.stats import chi2
 from ldscore import sumstats
 from ldsc import MASTHEAD, Logger, sec_to_str
@@ -125,7 +126,10 @@ numeric_cols = ['P', 'N', 'N_CAS', 'N_CON', 'Z', 'OR', 'BETA', 'LOG_ODDS', 'INFO
 def read_header(fh):
     '''Read the first line of a file and returns a list with the column names.'''
     (openfunc, compression) = get_compression(fh)
-    return [x.rstrip('\n') for x in openfunc(fh).readline().split()]
+    line = openfunc(fh).readline()
+    if isinstance(line, bytes):
+        line = line.decode()
+    return [x.rstrip('\n') for x in re.split(r'[\s+,;]', line)]
 
 
 def get_cname_map(flag, default, ignore):
